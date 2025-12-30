@@ -1,7 +1,11 @@
 import json
 import base64
+import os
 import requests
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ==========================================
 # CONFIGURATION
@@ -10,13 +14,13 @@ DRY_RUN = False  # <--- Set to False to actually delete the notes
 
 INPUT_FILE = Path("crewhu_surveys_clean.json")
 
-# ConnectWise Credentials
-COMPANY_ID = "pearlsolves"
-PUBLIC_KEY = "fBnI5wBwwDk0Cquk"
-PRIVATE_KEY = "kQDyrfqPqhoo4tGY"
-CLIENT_ID = "43c39678-9ed1-4fd4-8ccf-db2d5a9dab10"
+# ConnectWise Credentials (from environment variables)
+COMPANY_ID = os.environ.get("CW_COMPANY_ID")
+PUBLIC_KEY = os.environ.get("CW_PUBLIC_KEY")
+PRIVATE_KEY = os.environ.get("CW_PRIVATE_KEY")
+CLIENT_ID = os.environ.get("CW_CLIENT_ID")
 
-API_BASE = "https://na.myconnectwise.net/v4_6_release/apis/3.0"
+API_BASE = os.environ.get("CW_API_BASE", "https://na.myconnectwise.net/v4_6_release/apis/3.0")
 
 # ==========================================
 # AUTHENTICATION

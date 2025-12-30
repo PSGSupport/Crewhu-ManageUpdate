@@ -1,16 +1,22 @@
 import requests
 import base64
+import os
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # === CSV File Path ===
 # Change this to the actual file location
 CSV_FILE_PATH = r"/content/Lost Surveys(Survey History (5)) (1).csv"
 
-# === ConnectWise Credentials ===
-COMPANY_ID = "pearlsolves"
-PUBLIC_KEY = "fBnI5wBwwDk0Cquk"
-PRIVATE_KEY = "kQDyrfqPqhoo4tGY"
-CLIENT_ID = "43c39678-9ed1-4fd4-8ccf-db2d5a9dab10"
+# === ConnectWise Credentials (from environment variables) ===
+COMPANY_ID = os.environ.get("CW_COMPANY_ID")
+PUBLIC_KEY = os.environ.get("CW_PUBLIC_KEY")
+PRIVATE_KEY = os.environ.get("CW_PRIVATE_KEY")
+CLIENT_ID = os.environ.get("CW_CLIENT_ID")
+
+API_BASE = os.environ.get("CW_API_BASE", "https://na.myconnectwise.net/v4_6_release/apis/3.0")
 
 # === AUTH HEADER ===
 auth_string = f"{COMPANY_ID}+{PUBLIC_KEY}:{PRIVATE_KEY}"
@@ -40,7 +46,7 @@ for index, row in df.iterrows():
         print(f"Skipping ticket {ticket_id} — Rating is not AWESOME ({rating})")
         continue
 
-    url = f"https://na.myconnectwise.net/v4_6_release/apis/3.0/service/tickets/{ticket_id}"
+    url = f"{API_BASE}/service/tickets/{ticket_id}"
 
     payload = [
         {

@@ -4,8 +4,12 @@ import csv
 import json
 import re
 import base64
+import os
 import requests
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ==========
 # CONFIG: FILE PATHS
@@ -15,14 +19,14 @@ CSV_FILE = Path("Lost Surveys(Survey History (5)) (1).csv")
 JSON_FILE = Path("crewhu_notifications_NEW.json")
 
 # ==========
-# CONFIG: CONNECTWISE CREDS
+# CONFIG: CONNECTWISE CREDS (from environment variables)
 # ==========
-COMPANY_ID = "pearlsolves"
-PUBLIC_KEY = "AVk7JkjVIiTjjnle"
-PRIVATE_KEY = "HVy911UWKBMVGAwb"
-CLIENT_ID = "43c39678-9ed1-4fd4-8ccf-db2d5a9dab10"
+COMPANY_ID = os.environ.get("CW_COMPANY_ID")
+PUBLIC_KEY = os.environ.get("CW_PUBLIC_KEY")
+PRIVATE_KEY = os.environ.get("CW_PRIVATE_KEY")
+CLIENT_ID = os.environ.get("CW_CLIENT_ID")
 
-API_BASE = "https://api-na.myconnectwise.net/v2025_1/apis/3.0"
+API_BASE = os.environ.get("CW_API_BASE", "https://api-na.myconnectwise.net/v2025_1/apis/3.0")
 
 
 # ==========
