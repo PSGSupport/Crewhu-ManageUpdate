@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: crewhu-integration
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: CW_COMPANY_ID
+        sync: false
+      - key: CW_PUBLIC_KEY
+        sync: false
+      - key: CW_PRIVATE_KEY
+        sync: false
+      - key: CW_CLIENT_ID
+        sync: false
+      - key: CW_API_BASE
+        value: https://na.myconnectwise.net/v4_6_release/apis/3.0
+    healthCheckPath: /api/status
+    autoDeploy: true

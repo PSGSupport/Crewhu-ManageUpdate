@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crewhu - ConnectWise Integration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-card: #1c2128;
+            --border-color: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-yellow: #d29922;
+            --accent-red: #f85149;
+            --accent-purple: #a371f7;
+            --gradient-start: #58a6ff;
+            --gradient-end: #a371f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-yellow);
+        }
+
+        .status-dot.connected {
+            background: var(--accent-green);
+        }
+
+        .status-dot.error {
+            background: var(--accent-red);
+        }
+
+        /* Cards */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 4px 20px rgba(88, 166, 255, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .card-icon.blue { background: rgba(88, 166, 255, 0.15); }
+        .card-icon.green { background: rgba(63, 185, 80, 0.15); }
+        .card-icon.purple { background: rgba(163, 113, 247, 0.15); }
+        .card-icon.yellow { background: rgba(210, 153, 34, 0.15); }
+
+        .card h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+        }
+
+        /* File Upload */
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--accent-blue);
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .upload-zone input {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.7;
+        }
+
+        .upload-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .upload-text strong {
+            color: var(--accent-blue);
+        }
+
+        .file-name {
+            background: var(--bg-tertiary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+            display: none;
+        }
+
+        .file-name.visible {
+            display: block;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(88, 166, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--border-color);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* Toggle */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-label {
+            font-size: 0.875rem;
+        }
+
+        .toggle-label small {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .toggle {
+            width: 48px;
+            height: 26px;
+            background: var(--border-color);
+            border-radius: 13px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+
+        .toggle.active {
+            background: var(--accent-green);
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle.active::after {
+            transform: translateX(22px);
+        }
+
+        /* Log Console */
+        .console-section {
+            margin-top: 2rem;
+        }
+
+        .console-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .console-header h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .console {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            height: 300px;
+            overflow-y: auto;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.813rem;
+        }
+
+        .log-entry {
+            padding: 0.375rem 0;
+            border-bottom: 1px solid var(--bg-tertiary);
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-time {
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .log-message {
+            color: var(--text-secondary);
+        }
+
+        .log-entry.info .log-message { color: var(--text-primary); }
+        .log-entry.success .log-message { color: var(--accent-green); }
+        .log-entry.warning .log-message { color: var(--accent-yellow); }
+        .log-entry.error .log-message { color: var(--accent-red); }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .progress-container.visible {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Files List */
+        .files-section {
+            margin-top: 2rem;
+        }
+
+        .files-list {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .files-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .files-header h3 {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.875rem 1.5rem;
+            border-bottom: 1px solid var(--bg-tertiary);
+            transition: background 0.2s ease;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .file-icon {
+            font-size: 1.25rem;
+        }
+
+        .file-details {
+            font-size: 0.875rem;
+        }
+
+        .file-details span {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .file-btn {
+            padding: 0.375rem 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .file-btn:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">C</div>
+                    <h1>Crewhu Integration</h1>
+                </div>
+                <div class="status-badge" id="apiStatus">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Checking API...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="grid">
+            <!-- Parse Emails Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon blue">&#128231;</div>
+                    <h2>Parse Crewhu Emails</h2>
+                </div>
+                <p>Upload JSON export of Crewhu notification emails to extract survey data.</p>
+
+                <div class="upload-zone" id="emailUploadZone">
+                    <input type="file" id="emailFile" accept=".json">
+                    <div class="upload-icon">&#128193;</div>
+                    <div class="upload-text">
+                        <strong>Click to upload</strong> or drag and drop<br>
+                        JSON file (max 16MB)
+                    </div>
+                </div>
+                <div class="file-name" id="emailFileName"></div>
+
+                <div class="toggle-container">
+                    <div class="toggle-label">
+                        Dry Run Mode
+                        <small>Preview without saving changes</small>
+                    </div>
+                    <div class="toggle active" id="emailDryRun" data-active="true"></div>
+                </div>
+
+                <button class="btn btn-primary" id="parseEmailsBtn" disabled>
+                    <span>&#9658;</span> Parse Emails
+                </button>
+
+                <div class="progress-container" id="emailProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="emailProgressFill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="emailProgressText">Processing...</span>
+                        <span id="emailProgressPercent">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Ratings Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon green">&#11088;</div>
+                    <h2>Update Ticket Ratings</h2>
+                </div>
+                <p>Upload CSV with ticket ratings to update ConnectWise custom fields.</p>
+
+                <div class="upload-zone" id="ratingsUploadZone">
+                    <input type="file" id="ratingsFile" accept=".csv">
+                    <div class="upload-icon">&#128193;</div>
+                    <div class="upload-text">
+                        <strong>Click to upload</strong> or drag and drop<br>
+                        CSV file (max 16MB)
+                    </div>
+                </div>
+                <div class="file-name" id="ratingsFileName"></div>
+
+                <div class="toggle-container">
+                    <div class="toggle-label">
+                        Dry Run Mode
+                        <small>Preview without making API calls</small>
+                    </div>
+                    <div class="toggle active" id="ratingsDryRun" data-active="true"></div>
+                </div>
+
+                <button class="btn btn-primary" id="postRatingsBtn" disabled>
+                    <span>&#9658;</span> Update Ratings
+                </button>
+
+                <div class="progress-container" id="ratingsProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="ratingsProgressFill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="ratingsProgressText">Processing...</span>
+                        <span id="ratingsProgressPercent">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Notes Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon purple">&#128221;</div>
+                    <h2>Post Internal Notes</h2>
+                </div>
+                <p>Post customer feedback as internal notes on ConnectWise tickets.</p>
+
+                <div class="toggle-container">
+                    <div class="toggle-label">
+                        Dry Run Mode
+                        <small>Preview without posting notes</small>
+                    </div>
+                    <div class="toggle active" id="notesDryRun" data-active="true"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="selectNotesFile">
+                        Select JSON File
+                    </button>
+                    <button class="btn btn-primary" id="postNotesBtn">
+                        <span>&#9658;</span> Post Notes
+                    </button>
+                </div>
+
+                <div class="progress-container" id="notesProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="notesProgressFill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="notesProgressText">Processing...</span>
+                        <span id="notesProgressPercent">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console Section -->
+        <div class="console-section">
+            <div class="console-header">
+                <h2>Activity Log</h2>
+                <button class="btn btn-secondary" id="clearLog" style="width: auto; padding: 0.5rem 1rem;">
+                    Clear Log
+                </button>
+            </div>
+            <div class="console" id="console">
+                <div class="log-entry info">
+                    <span class="log-time">--:--:--</span>
+                    <span class="log-message">Ready. Upload files to begin processing.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Files Section -->
+        <div class="files-section">
+            <div class="files-list">
+                <div class="files-header">
+                    <h3>Uploaded Files</h3>
+                    <button class="file-btn" id="refreshFiles">&#8635; Refresh</button>
+                </div>
+                <div id="filesList">
+                    <div class="file-item" style="color: var(--text-muted); justify-content: center;">
+                        No files uploaded yet
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Session ID for SSE
+        const sessionId = 'session_' + Date.now();
+        let eventSource = null;
+        let selectedNotesFile = 'crewhu_surveys_clean.json';
+
+        // DOM Elements
+        const console_el = document.getElementById('console');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+
+        // Utility Functions
+        function log(message, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `
+                <span class="log-time">${time}</span>
+                <span class="log-message">${message}</span>
+            `;
+            console_el.appendChild(entry);
+            console_el.scrollTop = console_el.scrollHeight;
+        }
+
+        function updateProgress(prefix, percent, text) {
+            const container = document.getElementById(`${prefix}Progress`);
+            const fill = document.getElementById(`${prefix}ProgressFill`);
+            const percentEl = document.getElementById(`${prefix}ProgressPercent`);
+            const textEl = document.getElementById(`${prefix}ProgressText`);
+
+            container.classList.add('visible');
+            fill.style.width = `${percent}%`;
+            percentEl.textContent = `${percent}%`;
+            if (text) textEl.textContent = text;
+        }
+
+        function hideProgress(prefix) {
+            document.getElementById(`${prefix}Progress`).classList.remove('visible');
+        }
+
+        // API Status Check
+        async function checkApiStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+
+                if (data.credentials_valid) {
+                    statusDot.classList.add('connected');
+                    statusDot.classList.remove('error');
+                    statusText.textContent = 'API Connected';
+                    log('ConnectWise API credentials verified', 'success');
+                } else {
+                    statusDot.classList.add('error');
+                    statusDot.classList.remove('connected');
+                    statusText.textContent = 'Missing Credentials';
+                    log(`Missing credentials: ${data.missing.join(', ')}`, 'error');
+                }
+            } catch (error) {
+                statusDot.classList.add('error');
+                statusText.textContent = 'API Error';
+                log('Failed to check API status', 'error');
+            }
+        }
+
+        // File Upload Handling
+        function setupUploadZone(zoneId, inputId, fileNameId, buttonId) {
+            const zone = document.getElementById(zoneId);
+            const input = document.getElementById(inputId);
+            const fileName = document.getElementById(fileNameId);
+            const button = document.getElementById(buttonId);
+
+            zone.addEventListener('click', () => input.click());
+
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('dragover');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    input.files = e.dataTransfer.files;
+                    handleFileSelect(input, fileName, button);
+                }
+            });
+
+            input.addEventListener('change', () => {
+                handleFileSelect(input, fileName, button);
+            });
+        }
+
+        async function handleFileSelect(input, fileNameEl, button) {
+            const file = input.files[0];
+            if (!file) return;
+
+            fileNameEl.textContent = file.name;
+            fileNameEl.classList.add('visible');
+
+            // Upload file
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                log(`Uploading ${file.name}...`, 'info');
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    log(`Uploaded: ${file.name}`, 'success');
+                    button.disabled = false;
+                    button.dataset.filename = data.filename;
+                    refreshFiles();
+                } else {
+                    log(`Upload failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`Upload error: ${error.message}`, 'error');
+            }
+        }
+
+        // Toggle Handling
+        function setupToggle(toggleId) {
+            const toggle = document.getElementById(toggleId);
+            toggle.addEventListener('click', () => {
+                const isActive = toggle.dataset.active === 'true';
+                toggle.dataset.active = (!isActive).toString();
+                toggle.classList.toggle('active', !isActive);
+            });
+        }
+
+        // SSE Connection
+        function connectSSE(onMessage, onDone) {
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            eventSource = new EventSource(`/api/stream/${sessionId}`);
+
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+
+                if (data.type === 'keepalive') return;
+
+                if (data.type === 'done') {
+                    eventSource.close();
+                    if (onDone) onDone(JSON.parse(data.message));
+                    return;
+                }
+
+                onMessage(data);
+            };
+
+            eventSource.onerror = () => {
+                log('Connection lost. Reconnecting...', 'warning');
+            };
+        }
+
+        // Action Handlers
+        async function parseEmails() {
+            const btn = document.getElementById('parseEmailsBtn');
+            const filename = btn.dataset.filename;
+            const dryRun = document.getElementById('emailDryRun').dataset.active === 'true';
+
+            btn.disabled = true;
+            log(`Starting email parsing (Dry Run: ${dryRun})...`, 'info');
+
+            connectSSE(
+                (data) => {
+                    log(data.message, data.type);
+                    if (data.progress !== null) {
+                        updateProgress('email', data.progress, data.message);
+                    }
+                },
+                (result) => {
+                    btn.disabled = false;
+                    hideProgress('email');
+                    if (result.success) {
+                        log(`Parsing complete! Extracted ${result.surveys_extracted} surveys`, 'success');
+                        refreshFiles();
+                    }
+                }
+            );
+
+            await fetch('/api/parse-emails', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    input_file: filename,
+                    dry_run: dryRun
+                })
+            });
+        }
+
+        async function postRatings() {
+            const btn = document.getElementById('postRatingsBtn');
+            const filename = btn.dataset.filename;
+            const dryRun = document.getElementById('ratingsDryRun').dataset.active === 'true';
+
+            btn.disabled = true;
+            log(`Starting ratings update (Dry Run: ${dryRun})...`, 'info');
+
+            connectSSE(
+                (data) => {
+                    log(data.message, data.type);
+                    if (data.progress !== null) {
+                        updateProgress('ratings', data.progress, data.message);
+                    }
+                },
+                (result) => {
+                    btn.disabled = false;
+                    hideProgress('ratings');
+                    if (result.success) {
+                        log(`Ratings update complete! Updated: ${result.updated}, Errors: ${result.errors}`, 'success');
+                    }
+                }
+            );
+
+            await fetch('/api/post-ratings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    csv_file: filename,
+                    dry_run: dryRun
+                })
+            });
+        }
+
+        async function postNotes() {
+            const dryRun = document.getElementById('notesDryRun').dataset.active === 'true';
+
+            log(`Starting notes posting (Dry Run: ${dryRun})...`, 'info');
+
+            connectSSE(
+                (data) => {
+                    log(data.message, data.type);
+                    if (data.progress !== null) {
+                        updateProgress('notes', data.progress, data.message);
+                    }
+                },
+                (result) => {
+                    hideProgress('notes');
+                    if (result.success) {
+                        log(`Notes posting complete! Posted: ${result.posted}, Errors: ${result.errors}`, 'success');
+                    }
+                }
+            );
+
+            await fetch('/api/post-notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    json_file: selectedNotesFile,
+                    dry_run: dryRun
+                })
+            });
+        }
+
+        // Files List
+        async function refreshFiles() {
+            try {
+                const response = await fetch('/api/files');
+                const files = await response.json();
+                const container = document.getElementById('filesList');
+
+                if (files.length === 0) {
+                    container.innerHTML = `
+                        <div class="file-item" style="color: var(--text-muted); justify-content: center;">
+                            No files uploaded yet
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = files.map(file => {
+                    const icon = file.name.endsWith('.json') ? '&#128196;' : '&#128200;';
+                    const size = (file.size / 1024).toFixed(1) + ' KB';
+                    return `
+                        <div class="file-item">
+                            <div class="file-info">
+                                <span class="file-icon">${icon}</span>
+                                <div class="file-details">
+                                    ${file.name}
+                                    <span>${size}</span>
+                                </div>
+                            </div>
+                            <div class="file-actions">
+                                <button class="file-btn" onclick="selectForNotes('${file.name}')">Use for Notes</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                log('Failed to refresh file list', 'error');
+            }
+        }
+
+        function selectForNotes(filename) {
+            selectedNotesFile = filename;
+            log(`Selected "${filename}" for notes posting`, 'info');
+        }
+
+        // Clear Log
+        document.getElementById('clearLog').addEventListener('click', () => {
+            console_el.innerHTML = `
+                <div class="log-entry info">
+                    <span class="log-time">${new Date().toLocaleTimeString()}</span>
+                    <span class="log-message">Log cleared. Ready for new operations.</span>
+                </div>
+            `;
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkApiStatus();
+            refreshFiles();
+
+            // Setup upload zones
+            setupUploadZone('emailUploadZone', 'emailFile', 'emailFileName', 'parseEmailsBtn');
+            setupUploadZone('ratingsUploadZone', 'ratingsFile', 'ratingsFileName', 'postRatingsBtn');
+
+            // Setup toggles
+            setupToggle('emailDryRun');
+            setupToggle('ratingsDryRun');
+            setupToggle('notesDryRun');
+
+            // Button handlers
+            document.getElementById('parseEmailsBtn').addEventListener('click', parseEmails);
+            document.getElementById('postRatingsBtn').addEventListener('click', postRatings);
+            document.getElementById('postNotesBtn').addEventListener('click', postNotes);
+            document.getElementById('selectNotesFile').addEventListener('click', () => {
+                log('Select a JSON file from the list below, or upload one first', 'info');
+            });
+            document.getElementById('refreshFiles').addEventListener('click', refreshFiles);
+        });
+    </script>
+</body>
+</html>

@@ -11,3 +11,10 @@ __pycache__/
 # IDE
 .vscode/
 .idea/
+
+# Uploaded files
+uploads/
+
+# Test data files
+*.csv
+crewhu_*.json
