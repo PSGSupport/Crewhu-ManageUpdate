@@ -1,65 +1,48 @@
+"""
+Post Crewhu survey feedback as internal notes on ConnectWise tickets.
+
+Reads parsed survey data from JSON and creates internal analysis notes
+on the corresponding tickets.
+"""
+
 import json
-import base64
-import os
 import requests
 from datetime import datetime, timezone
 from pathlib import Path
-from dotenv import load_dotenv
 
-load_dotenv()
-
-# ==============================
-# CONFIG – DRY RUN
-# ==============================
-DRY_RUN = False   # ←← SET TO False TO ACTUALLY POST NOTES
+from connectwise_api import (
+    require_credentials,
+    get_headers,
+    ticket_notes_url
+)
 
 # ==============================
-# CONFIG – FILES
+# CONFIG
 # ==============================
+DRY_RUN = False  # Set to True to preview changes without making them
+
 PARSED_JSON = Path("crewhu_surveys_clean.json")
-
-# ==============================
-# CONFIG – CONNECTWISE CREDS (from environment variables)
-# ==============================
-COMPANY_ID = os.environ.get("CW_COMPANY_ID")
-PUBLIC_KEY = os.environ.get("CW_PUBLIC_KEY")
-PRIVATE_KEY = os.environ.get("CW_PRIVATE_KEY")
-CLIENT_ID = os.environ.get("CW_CLIENT_ID")
-
-API_BASE = os.environ.get("CW_API_BASE", "https://na.myconnectwise.net/v4_6_release/apis/3.0")
-
-
-# ==============================
-# AUTH
-# ==============================
-def get_headers():
-    auth_string = f"{COMPANY_ID}+{PUBLIC_KEY}:{PRIVATE_KEY}"
-    auth_base64 = base64.b64encode(auth_string.encode()).decode()
-    return {
-        "Authorization": f"Basic {auth_base64}",
-        "clientId": CLIENT_ID,
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    }
 
 
 # ==============================
 # DELETE OLD AUTOMATED NOTES
 # ==============================
 def delete_automated_notes(ticket_id, headers):
-    # This function finds ANY note (Internal or Discussion) with the specific 
-    # automated text and deletes it to prevent duplicates.
+    """
+    Find and delete any existing notes created by this automation
+    to prevent duplicates.
+    """
     if DRY_RUN:
         print(f"[{ticket_id}] (DRY RUN) Would delete old automation notes.")
-        return
+        return 0
 
-    notes_url = f"{API_BASE}/service/tickets/{ticket_id}/notes"
+    notes_url = ticket_notes_url(ticket_id)
 
     try:
         resp = requests.get(notes_url, headers=headers)
         if resp.status_code != 200:
-            print(f"[{ticket_id}] ❌ Failed to fetch notes: {resp.status_code}")
-            return
+            print(f"[{ticket_id}] Failed to fetch notes: {resp.status_code}")
+            return 0
 
         notes = resp.json()
         deleted = 0
@@ -70,24 +53,28 @@ def delete_automated_notes(ticket_id, headers):
 
             # Delete notes created by our script to prevent duplicates
             if "just gave a" in text and "Customer feedback:" in text:
-                del_url = f"{notes_url}/{note_id}"
+                del_url = ticket_notes_url(ticket_id, note_id)
                 d = requests.delete(del_url, headers=headers)
                 if d.status_code in (200, 204):
-                    print(f"[{ticket_id}] 🗑️ Deleted old auto note {note_id}")
+                    print(f"[{ticket_id}] Deleted old auto note {note_id}")
                     deleted += 1
 
         if deleted == 0:
             print(f"[{ticket_id}] No old automation notes found.")
 
+        return deleted
+
     except Exception as e:
-        print(f"[{ticket_id}] ❌ Error during deletion: {e}")
+        print(f"[{ticket_id}] Error during deletion: {e}")
+        return 0
 
 
 # ==============================
 # POST NEW NOTE (INTERNAL)
 # ==============================
 def post_note(ticket_id, summary, feedback, headers):
-    url = f"{API_BASE}/service/tickets/{ticket_id}/notes"
+    """Post a new internal analysis note to a ticket."""
+    url = ticket_notes_url(ticket_id)
 
     # Construct the final note text
     final_note_text = f"{summary}\n\nCustomer feedback:\n{feedback}"
@@ -95,16 +82,15 @@ def post_note(ticket_id, summary, feedback, headers):
     if DRY_RUN:
         print(f"\n[{ticket_id}] === DRY RUN NOTE (INTERNAL) ===")
         print(final_note_text)
-        print("===============================\n")
-        return
+        print("=" * 40 + "\n")
+        return True
 
-    # FLAGS UPDATED HERE FOR INTERNAL TAB
     payload = {
         "text": final_note_text,
-        "detailDescriptionFlag": False, # False = Do not put in Discussion
-        "internalAnalysisFlag": True,   # True = Put in Internal Analysis
-        "resolutionFlag": False,        # False = Do not put in Resolution
-        "createdBy": "Crewhu API", 
+        "detailDescriptionFlag": False,  # False = Do not put in Discussion
+        "internalAnalysisFlag": True,    # True = Put in Internal Analysis
+        "resolutionFlag": False,         # False = Do not put in Resolution
+        "createdBy": "Crewhu API",
         "dateCreated": datetime.now(timezone.utc).isoformat()
     }
 
@@ -112,21 +98,28 @@ def post_note(ticket_id, summary, feedback, headers):
         response = requests.post(url, headers=headers, json=payload)
 
         if response.status_code == 201:
-            print(f"[{ticket_id}] ✅ Posted updated INTERNAL note")
+            print(f"[{ticket_id}] Posted internal note")
+            return True
         else:
-            print(f"[{ticket_id}] ❌ Error posting note: {response.status_code} {response.text[:200]}")
+            print(f"[{ticket_id}] Error posting note: {response.status_code} {response.text[:200]}")
+            return False
     except Exception as e:
-        print(f"[{ticket_id}] ❌ Connection Error: {e}")
+        print(f"[{ticket_id}] Connection Error: {e}")
+        return False
 
 
 # ==============================
-# MAIN LOGIC
+# MAIN
 # ==============================
 def main():
+    # Validate credentials
+    require_credentials()
+
     headers = get_headers()
 
     if not PARSED_JSON.exists():
-        print(f"ERROR: {PARSED_JSON} not found. Please run the parser script first.")
+        print(f"ERROR: {PARSED_JSON} not found.")
+        print("Please run reformatJSON.py first to generate this file.")
         return
 
     with PARSED_JSON.open("r", encoding="utf-8") as f:
@@ -134,8 +127,14 @@ def main():
 
     print(f"Loaded {len(parsed_data)} parsed Crewhu entries.")
 
+    if DRY_RUN:
+        print("!!! DRY RUN MODE - No changes will be made !!!\n")
+
+    # Track statistics
+    posted = 0
+    errors = 0
+
     for entry in parsed_data:
-        # 1. Extract data from new JSON format
         ticket_id = entry.get("ticket_number")
         summary = entry.get("summary", "").strip()
         feedback = entry.get("customer_feedback", "No feedback provided.").strip()
@@ -146,17 +145,26 @@ def main():
 
         print(f"\n=== Processing ticket {ticket_id} ===")
 
-        # 2. Delete old automated notes (safety check - removes duplicates even if they were in Discussion tab)
+        # Delete old automated notes (prevents duplicates)
         delete_automated_notes(ticket_id, headers)
 
-        # 3. Post the new note (Internal Tab)
-        post_note(ticket_id, summary, feedback, headers)
+        # Post the new note
+        if post_note(ticket_id, summary, feedback, headers):
+            posted += 1
+        else:
+            errors += 1
+
+    # Summary
+    print("\n" + "=" * 40)
+    print("SUMMARY")
+    print("=" * 40)
+    print(f"Total entries: {len(parsed_data)}")
+    print(f"Notes posted:  {posted}")
+    print(f"Errors:        {errors}")
 
     if DRY_RUN:
-        print("\nDRY RUN COMPLETE — no notes were posted or deleted.")
-        print("Set DRY_RUN = False in the script to execute changes.")
-    else:
-        print("\nAll notes updated successfully.")
+        print("\nDRY RUN COMPLETE - Set DRY_RUN = False to make changes.")
+
 
 if __name__ == "__main__":
     main()

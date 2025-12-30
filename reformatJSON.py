@@ -2,12 +2,13 @@
 
 import json
 import re
+from pathlib import Path
 
 # ---------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------
-INPUT_FILE = '/content/crewhu_notifications_NEW.json'
-OUTPUT_FILE = 'crewhu_surveys_clean.json'
+INPUT_FILE = Path("crewhu_notifications_NEW.json")
+OUTPUT_FILE = Path("crewhu_surveys_clean.json")
 
 def parse_crewhu_data():
     try:

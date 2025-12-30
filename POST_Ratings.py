@@ -1,52 +1,47 @@
+"""
+Update ConnectWise tickets with Crewhu ratings.
+
+Reads ratings from a CSV file and updates the "Latest Crewhu Rating"
+custom field on matching tickets.
+"""
+
 import requests
-import base64
-import os
 import pandas as pd
-from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+from connectwise_api import (
+    require_credentials,
+    get_headers,
+    tickets_url,
+    API_BASE
+)
 
-# === CSV File Path ===
-# Change this to the actual file location
-CSV_FILE_PATH = r"/content/Lost Surveys(Survey History (5)) (1).csv"
+# ==========================================
+# CONFIGURATION
+# ==========================================
+DRY_RUN = False  # Set to True to preview changes without making them
 
-# === ConnectWise Credentials (from environment variables) ===
-COMPANY_ID = os.environ.get("CW_COMPANY_ID")
-PUBLIC_KEY = os.environ.get("CW_PUBLIC_KEY")
-PRIVATE_KEY = os.environ.get("CW_PRIVATE_KEY")
-CLIENT_ID = os.environ.get("CW_CLIENT_ID")
+# CSV file path - change this to match your file location
+CSV_FILE = Path("Lost Surveys(Survey History (5)) (1).csv")
 
-API_BASE = os.environ.get("CW_API_BASE", "https://na.myconnectwise.net/v4_6_release/apis/3.0")
 
-# === AUTH HEADER ===
-auth_string = f"{COMPANY_ID}+{PUBLIC_KEY}:{PRIVATE_KEY}"
-auth_base64 = base64.b64encode(auth_string.encode()).decode()
-
-headers = {
-    "Authorization": f"Basic {auth_base64}",
-    "clientId": CLIENT_ID,
-    "Content-Type": "application/json",
-    "Accept": "application/json"
+# ==========================================
+# RATING MAPPING
+# ==========================================
+RATING_MAP = {
+    "AWESOME": "Positive",
+    # Add more mappings here if needed
+    # "GOOD": "Positive",
+    # "BAD": "Negative",
 }
 
-# === LOAD CSV FILE ===
-df = pd.read_csv('/content/Lost Surveys(Survey History (5)) (1).csv')
 
-print("Starting ticket update process...")
-
-# === PROCESS EACH ROW ===
-for index, row in df.iterrows():
-    ticket_id = str(row['Ticket#']).strip()
-    rating = str(row['Rating']).strip()
-
-    # Only send "AWESOME" as "Positive"
-    if rating.upper() == "AWESOME":
-        rating_value = "Positive"
-    else:
-        print(f"Skipping ticket {ticket_id} — Rating is not AWESOME ({rating})")
-        continue
-
-    url = f"{API_BASE}/service/tickets/{ticket_id}"
+# ==========================================
+# UPDATE LOGIC
+# ==========================================
+def update_ticket_rating(ticket_id, rating_value, headers):
+    """Update the Latest Crewhu Rating custom field on a ticket."""
+    url = tickets_url(ticket_id)
 
     payload = [
         {
@@ -65,15 +60,92 @@ for index, row in df.iterrows():
         }
     ]
 
+    if DRY_RUN:
+        print(f"[{ticket_id}] (DRY RUN) Would set rating to: {rating_value}")
+        return True
+
     try:
         response = requests.patch(url, headers=headers, json=payload)
 
         if response.status_code == 200:
-            print(f" Updated Ticket {ticket_id} — Rating set to {rating_value}")
+            print(f"[{ticket_id}] Updated rating to: {rating_value}")
+            return True
         else:
-            print(f" ERROR updating Ticket {ticket_id}: {response.status_code} — {response.text}")
+            print(f"[{ticket_id}] ERROR: {response.status_code} - {response.text[:200]}")
+            return False
 
     except requests.exceptions.RequestException as e:
-        print(f" NETWORK ERROR on Ticket {ticket_id}: {e}")
+        print(f"[{ticket_id}] NETWORK ERROR: {e}")
+        return False
 
-print("\nFinished processing tickets.")
+
+# ==========================================
+# MAIN
+# ==========================================
+def main():
+    # Validate credentials before starting
+    require_credentials()
+
+    # Check CSV file exists
+    if not CSV_FILE.exists():
+        print(f"ERROR: CSV file not found: {CSV_FILE}")
+        print("Please update CSV_FILE path in the script.")
+        return
+
+    headers = get_headers()
+
+    # Load CSV
+    try:
+        df = pd.read_csv(CSV_FILE)
+    except Exception as e:
+        print(f"ERROR reading CSV: {e}")
+        return
+
+    print(f"Loaded {len(df)} rows from {CSV_FILE}")
+
+    if DRY_RUN:
+        print("!!! DRY RUN MODE - No changes will be made !!!\n")
+
+    # Track statistics
+    updated = 0
+    skipped = 0
+    errors = 0
+
+    # Process each row
+    for index, row in df.iterrows():
+        ticket_id = str(row['Ticket#']).strip()
+
+        # Handle float ticket IDs like "497225.0"
+        if '.' in ticket_id:
+            ticket_id = ticket_id.split('.')[0]
+
+        rating = str(row['Rating']).strip().upper()
+
+        # Map rating to value
+        if rating not in RATING_MAP:
+            print(f"[{ticket_id}] Skipping - Rating '{rating}' not mapped")
+            skipped += 1
+            continue
+
+        rating_value = RATING_MAP[rating]
+
+        if update_ticket_rating(ticket_id, rating_value, headers):
+            updated += 1
+        else:
+            errors += 1
+
+    # Summary
+    print("\n" + "=" * 40)
+    print("SUMMARY")
+    print("=" * 40)
+    print(f"Total rows:  {len(df)}")
+    print(f"Updated:     {updated}")
+    print(f"Skipped:     {skipped}")
+    print(f"Errors:      {errors}")
+
+    if DRY_RUN:
+        print("\nDRY RUN COMPLETE - Set DRY_RUN = False to make changes.")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,46 +1,32 @@
 # get and post links
+"""
+Update ConnectWise tickets with Crewhu survey links.
+
+Reads ticket numbers from a CSV file, finds matching survey links
+from Crewhu notification JSON, and updates the ticket's custom field.
+"""
 
 import csv
 import json
 import re
-import base64
-import os
 import requests
 from pathlib import Path
-from dotenv import load_dotenv
 
-load_dotenv()
+from connectwise_api import (
+    require_credentials,
+    get_headers,
+    tickets_url,
+    API_BASE
+)
 
 # ==========
-# CONFIG: FILE PATHS
+# CONFIG
 # ==========
-# Change these to match your actual uploaded file names.
+DRY_RUN = False  # Set to True to preview changes without making them
+
+# File paths - change these to match your actual files
 CSV_FILE = Path("Lost Surveys(Survey History (5)) (1).csv")
 JSON_FILE = Path("crewhu_notifications_NEW.json")
-
-# ==========
-# CONFIG: CONNECTWISE CREDS (from environment variables)
-# ==========
-COMPANY_ID = os.environ.get("CW_COMPANY_ID")
-PUBLIC_KEY = os.environ.get("CW_PUBLIC_KEY")
-PRIVATE_KEY = os.environ.get("CW_PRIVATE_KEY")
-CLIENT_ID = os.environ.get("CW_CLIENT_ID")
-
-API_BASE = os.environ.get("CW_API_BASE", "https://api-na.myconnectwise.net/v2025_1/apis/3.0")
-
-
-# ==========
-# AUTH / HEADERS
-# ==========
-def build_headers():
-    auth_string = f"{COMPANY_ID}+{PUBLIC_KEY}:{PRIVATE_KEY}"
-    auth_base64 = base64.b64encode(auth_string.encode()).decode()
-    return {
-        "Authorization": f"Basic {auth_base64}",
-        "clientId": CLIENT_ID,
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-    }
 
 
 # ==========
@@ -130,20 +116,20 @@ def update_ticket_crewhu_field(ticket_number, survey_link, headers):
       - PATCH its value to survey_link
     """
     ticket_id = int(ticket_number)
-    url = f"{API_BASE}/service/tickets/{ticket_id}"
+    url = tickets_url(ticket_id)
 
     # --- GET the ticket ---
     resp = requests.get(url, headers=headers)
     if resp.status_code != 200:
         print(f"[{ticket_number}] GET ticket failed: {resp.status_code} {resp.text[:200]}")
-        return
+        return False
 
     ticket = resp.json()
     custom_fields = ticket.get("customFields", [])
 
     if not custom_fields:
         print(f"[{ticket_number}] No customFields on ticket.")
-        return
+        return False
 
     # Find the Crewhu field (prefer explicit caption, otherwise any 'crewhu'-related)
     candidates = [
@@ -154,7 +140,7 @@ def update_ticket_crewhu_field(ticket_number, survey_link, headers):
 
     if not candidates:
         print(f"[{ticket_number}] No Crewhu-related custom field found.")
-        return
+        return False
 
     latest_field = candidates[-1]
     idx = custom_fields.index(latest_field)
@@ -167,31 +153,52 @@ def update_ticket_crewhu_field(ticket_number, survey_link, headers):
         }
     ]
 
+    if DRY_RUN:
+        print(f"[{ticket_number}] (DRY RUN) Would update field to: {survey_link}")
+        return True
+
     patch_resp = requests.patch(url, headers=headers, json=patch_body)
 
     if patch_resp.status_code in (200, 204):
-        print(f"[{ticket_number}]  Updated Crewhu field with: {survey_link}")
+        print(f"[{ticket_number}] Updated Crewhu field with: {survey_link}")
+        return True
     else:
-        print(f"[{ticket_number}]  PATCH failed: {patch_resp.status_code} {patch_resp.text[:200]}")
+        print(f"[{ticket_number}] PATCH failed: {patch_resp.status_code} {patch_resp.text[:200]}")
+        return False
 
 
 # ==========
 # MAIN FLOW
 # ==========
 def main():
-    headers = build_headers()
+    # Validate credentials
+    require_credentials()
+
+    headers = get_headers()
+
+    # Check files exist
+    if not CSV_FILE.exists():
+        print(f"ERROR: CSV file not found: {CSV_FILE}")
+        return
+
+    if not JSON_FILE.exists():
+        print(f"ERROR: JSON file not found: {JSON_FILE}")
+        return
 
     print("Loading CSV ticket list...")
     tickets = load_ticket_numbers_from_csv(CSV_FILE)
-    print(f"Found {len(tickets)} tickets in CSV: {tickets}")
+    print(f"Found {len(tickets)} tickets in CSV")
 
     print("Loading Crewhu JSON notifications...")
     notifications = load_notifications_from_json(JSON_FILE)
     print(f"Loaded {len(notifications)} notification records from JSON.")
 
+    if DRY_RUN:
+        print("\n!!! DRY RUN MODE - No changes will be made !!!\n")
+
     processed = 0
     missing_link = 0
-    api_failures = 0  # counted via messages
+    errors = 0
 
     for ticket_number in tickets:
         print(f"\n=== Processing ticket {ticket_number} ===")
@@ -203,14 +210,21 @@ def main():
             continue
 
         print(f"[{ticket_number}] Found survey link: {survey_link}")
-        update_ticket_crewhu_field(ticket_number, survey_link, headers)
-        processed += 1
+        if update_ticket_crewhu_field(ticket_number, survey_link, headers):
+            processed += 1
+        else:
+            errors += 1
 
-    print("\n======== SUMMARY ========")
+    print("\n" + "=" * 40)
+    print("SUMMARY")
+    print("=" * 40)
     print(f"Total tickets in CSV: {len(tickets)}")
-    print(f"Tickets with survey link found & attempted update: {processed}")
-    print(f"Tickets with NO survey link found in JSON: {missing_link}")
-    print("Check above logs for any API failure messages.")
+    print(f"Successfully updated: {processed}")
+    print(f"No survey link found: {missing_link}")
+    print(f"Errors: {errors}")
+
+    if DRY_RUN:
+        print("\nDRY RUN COMPLETE - Set DRY_RUN = False to make changes.")
 
 
 if __name__ == "__main__":
