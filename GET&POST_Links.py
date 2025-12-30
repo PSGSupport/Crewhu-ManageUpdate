@@ -86,13 +86,14 @@ def get_survey_link_for_ticket(ticket_number, notifications):
     """
     Find the first Crewhu survey link for a given ticket number.
     We look for:
-      - 'ticket# {ticket_number}' in FullBody
+      - 'ticket# {ticket_number}' in FullBody/full_clean_body
       - and a link containing '.../managesurvey/form/...'
     """
     ticket_pattern = f"ticket# {ticket_number}"
 
     for notif in notifications:
-        full_body = notif.get("FullBody", "")
+        # Support both raw (FullBody) and processed (full_clean_body) formats
+        full_body = notif.get("FullBody", "") or notif.get("full_clean_body", "")
         if ticket_pattern not in full_body:
             continue
 

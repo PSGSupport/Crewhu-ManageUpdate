@@ -31,7 +31,7 @@ REGEX_REVIEW = re.compile(
 # Pattern for "Woohoo" style emails
 # "Name from Company gave a Rating Rating for Categories on ticket# ID (Desc) to your colleague Employee."
 REGEX_WOOHOO = re.compile(
-    r"(?P<customer>.*?) from (?P<company>.*?) gave a (?P<rating>.*?) Rating for (?P<categories>.*?) on ticket# (?P<ticket_id>\d+)\s*\((?P<ticket_desc>.*?)\) to your colleague (?P<employee>.*?)",
+    r"(?P<customer>.*?) from (?P<company>.*?) gave a (?P<rating>.*?) Rating for (?P<categories>.*?) on ticket# (?P<ticket_id>\d+)\s*\((?P<ticket_desc>.*?)\) to your colleague (?P<employee>.+?)\.?$",
     re.IGNORECASE
 )
 
@@ -47,11 +47,12 @@ REGEX_FEEDBACK = re.compile(
 # ---------------------------------------------------------
 def extract_survey_from_email(email):
     """Extract survey data from a single email. Returns dict or None."""
-    subject = email.get('Subject', '')
-    full_body = email.get('FullBody', '')
+    # Support both raw email format (Subject/FullBody) and processed format (summary/full_clean_body)
+    subject = email.get('Subject', '') or email.get('summary', '')
+    full_body = email.get('FullBody', '') or email.get('full_clean_body', '')
 
-    # Skip if it's not a rating email
-    if 'rating' not in subject.lower():
+    # Skip if it's not a rating email (check both subject and body since format varies)
+    if 'rating' not in subject.lower() and 'gave a' not in full_body.lower():
         return None
 
     match_data = None

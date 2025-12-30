@@ -5,8 +5,8 @@ Reads ratings from a CSV file and updates the "Latest Crewhu Rating"
 custom field on matching tickets.
 """
 
+import csv
 import requests
-import pandas as pd
 from pathlib import Path
 
 from connectwise_api import (
@@ -29,9 +29,9 @@ CSV_FILE = Path("Lost Surveys(Survey History (5)) (1).csv")
 # ==========================================
 RATING_MAP = {
     "AWESOME": "Positive",
+    "POSITIVE": "Positive",
+    "NEGATIVE": "Negative",
     # Add more mappings here if needed
-    # "GOOD": "Positive",
-    # "BAD": "Negative",
 }
 
 
@@ -93,14 +93,16 @@ def main():
 
     headers = get_headers()
 
-    # Load CSV
+    # Load CSV using standard library
     try:
-        df = pd.read_csv(CSV_FILE)
+        with CSV_FILE.open('r', encoding='utf-8-sig', newline='') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
     except Exception as e:
         print(f"ERROR reading CSV: {e}")
         return
 
-    print(f"Loaded {len(df)} rows from {CSV_FILE}")
+    print(f"Loaded {len(rows)} rows from {CSV_FILE}")
 
     if DRY_RUN:
         print("!!! DRY RUN MODE - No changes will be made !!!\n")
@@ -111,14 +113,19 @@ def main():
     errors = 0
 
     # Process each row
-    for index, row in df.iterrows():
-        ticket_id = str(row['Ticket#']).strip()
+    for row in rows:
+        ticket_id = str(row.get('Ticket#', '')).strip()
 
         # Handle float ticket IDs like "497225.0"
         if '.' in ticket_id:
             ticket_id = ticket_id.split('.')[0]
 
-        rating = str(row['Rating']).strip().upper()
+        if not ticket_id or not ticket_id.isdigit():
+            print(f"Skipping row - Invalid ticket ID: {ticket_id}")
+            skipped += 1
+            continue
+
+        rating = str(row.get('Rating', '')).strip().upper()
 
         # Map rating to value
         if rating not in RATING_MAP:
@@ -137,7 +144,7 @@ def main():
     print("\n" + "=" * 40)
     print("SUMMARY")
     print("=" * 40)
-    print(f"Total rows:  {len(df)}")
+    print(f"Total rows:  {len(rows)}")
     print(f"Updated:     {updated}")
     print(f"Skipped:     {skipped}")
     print(f"Errors:      {errors}")
