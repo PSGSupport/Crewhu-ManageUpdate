@@ -15,8 +15,7 @@ from pathlib import Path
 from connectwise_api import (
     require_credentials,
     get_headers,
-    tickets_url,
-    API_BASE
+    tickets_url
 )
 
 # ==========

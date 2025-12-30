@@ -15,6 +15,14 @@
     The name of the output JSON file (saved to Desktop).
     Default: "crewhu_notifications_clean.json"
 
+.PARAMETER TargetEmail
+    The email account/mailbox to read from.
+    Default: "michael.crawford@pearlsolves.com"
+
+.PARAMETER TargetSender
+    Filter emails to only include those from this sender.
+    Default: "notification.system@notification.crewhu.com"
+
 .EXAMPLE
     .\emailParse.ps1
     # Reads from Inbox, saves to crewhu_notifications_clean.json
@@ -26,18 +34,18 @@
 .EXAMPLE
     .\emailParse.ps1 -FolderName "Tickets" -OutputFileName "tickets_export.json"
     # Custom folder and output file name
+
+.EXAMPLE
+    .\emailParse.ps1 -TargetEmail "other.user@pearlsolves.com"
+    # Read from a different mailbox
 #>
 
 param(
     [string]$FolderName = "Inbox",
-    [string]$OutputFileName = "crewhu_notifications_clean.json"
+    [string]$OutputFileName = "crewhu_notifications_clean.json",
+    [string]$TargetEmail = "michael.crawford@pearlsolves.com",
+    [string]$TargetSender = "notification.system@notification.crewhu.com"
 )
-
-# --------------------------------------------
-# Configuration
-# --------------------------------------------
-$TargetEmail  = "michael.crawford@pearlsolves.com"
-$TargetSender = "notification.system@notification.crewhu.com"
 
 # Load System.Web for URL decoding
 Add-Type -AssemblyName System.Web
