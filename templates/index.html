@@ -6,24 +6,29 @@
     <title>Crewhu - ConnectWise Integration</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #21262d;
-            --bg-card: #1c2128;
-            --border-color: #30363d;
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --text-muted: #6e7681;
-            --accent-blue: #58a6ff;
-            --accent-green: #3fb950;
-            --accent-yellow: #d29922;
-            --accent-red: #f85149;
-            --accent-purple: #a371f7;
-            --gradient-start: #58a6ff;
-            --gradient-end: #a371f7;
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --bg-card: rgba(26, 26, 36, 0.7);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --border-color: rgba(212, 175, 55, 0.2);
+            --border-glow: rgba(212, 175, 55, 0.4);
+            --text-primary: #f5f5f7;
+            --text-secondary: #a0a0a8;
+            --text-muted: #6a6a72;
+            --gold-primary: #d4af37;
+            --gold-light: #f4d03f;
+            --gold-dark: #b8960c;
+            --gold-glow: rgba(212, 175, 55, 0.3);
+            --amber: #ffbf00;
+            --bronze: #cd7f32;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+            --glass-shine: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);
         }
 
         * {
@@ -33,25 +38,39 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
+            background-image:
+                radial-gradient(ellipse at top, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(205, 127, 50, 0.05) 0%, transparent 40%);
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.6;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 2rem;
         }
 
         /* Header */
         header {
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            background: linear-gradient(180deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
             border-bottom: 1px solid var(--border-color);
             padding: 1.5rem 0;
             margin-bottom: 2rem;
+            position: relative;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
         }
 
         .header-content {
@@ -65,123 +84,319 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.875rem;
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            border-radius: 10px;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(145deg, var(--gold-light), var(--gold-dark));
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--bg-primary);
+            box-shadow:
+                0 4px 15px var(--gold-glow),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            position: relative;
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 10%;
+            right: 10%;
+            height: 40%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%);
+            border-radius: 10px 10px 50% 50%;
         }
 
         .logo h1 {
-            font-size: 1.5rem;
+            font-size: 1.625rem;
             font-weight: 600;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: -2px;
         }
 
         .status-badge {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--bg-tertiary);
+            padding: 0.625rem 1.125rem;
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
+            border-radius: 24px;
             font-size: 0.875rem;
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: var(--accent-yellow);
+            background: var(--warning);
+            box-shadow: 0 0 10px var(--warning);
         }
 
         .status-dot.connected {
-            background: var(--accent-green);
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
         }
 
         .status-dot.error {
-            background: var(--accent-red);
+            background: var(--error);
+            box-shadow: 0 0 10px var(--error);
+        }
+
+        /* Intro Section */
+        .intro-section {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .intro-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: var(--glass-shine);
+            pointer-events: none;
+        }
+
+        .intro-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--gold-light);
+        }
+
+        .intro-section p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 0.9375rem;
+        }
+
+        /* Workflow Steps */
+        .workflow {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .workflow-step {
+            position: relative;
+        }
+
+        .workflow-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 28px;
+            top: 100%;
+            width: 2px;
+            height: 1.5rem;
+            background: linear-gradient(180deg, var(--gold-primary), transparent);
         }
 
         /* Cards */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
         .card {
             background: var(--bg-card);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
+            border-radius: 20px;
+            padding: 1.75rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: var(--glass-shine);
+            pointer-events: none;
+            border-radius: 20px 20px 0 0;
         }
 
         .card:hover {
-            border-color: var(--accent-blue);
-            box-shadow: 0 4px 20px rgba(88, 166, 255, 0.1);
+            border-color: var(--border-glow);
+            box-shadow:
+                0 8px 32px rgba(212, 175, 55, 0.15),
+                0 0 0 1px var(--border-glow);
+            transform: translateY(-2px);
+        }
+
+        .card.completed {
+            border-color: var(--success);
+            opacity: 0.7;
+        }
+
+        .card.completed::after {
+            content: 'Completed';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--success);
+            color: var(--bg-primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
         .card-header {
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            align-items: flex-start;
+            gap: 1rem;
             margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
-        .card-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+        .step-number {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(145deg, var(--gold-light), var(--gold-dark));
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
+            flex-shrink: 0;
+            position: relative;
+            box-shadow:
+                0 4px 15px var(--gold-glow),
+                inset 0 1px 0 rgba(255,255,255,0.3);
         }
 
-        .card-icon.blue { background: rgba(88, 166, 255, 0.15); }
-        .card-icon.green { background: rgba(63, 185, 80, 0.15); }
-        .card-icon.purple { background: rgba(163, 113, 247, 0.15); }
-        .card-icon.yellow { background: rgba(210, 153, 34, 0.15); }
+        .step-number::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 15%;
+            right: 15%;
+            height: 35%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 100%);
+            border-radius: 8px 8px 50% 50%;
+        }
+
+        .step-number span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--bg-primary);
+        }
+
+        .step-info {
+            flex: 1;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gold-primary);
+            margin-bottom: 0.25rem;
+        }
 
         .card h2 {
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             font-weight: 600;
+            margin-bottom: 0.375rem;
         }
 
-        .card p {
+        .card-description {
             color: var(--text-secondary);
             font-size: 0.875rem;
             margin-bottom: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-instructions {
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-instructions h4 {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--gold-light);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-instructions ul {
+            list-style: none;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .card-instructions li {
+            padding: 0.25rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+        }
+
+        .card-instructions li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.6rem;
+            width: 6px;
+            height: 6px;
+            background: var(--gold-primary);
+            border-radius: 50%;
         }
 
         /* File Upload */
         .upload-zone {
             border: 2px dashed var(--border-color);
-            border-radius: 8px;
+            border-radius: 16px;
             padding: 2rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 1rem;
+            background: var(--bg-glass);
+            position: relative;
+            z-index: 1;
         }
 
         .upload-zone:hover, .upload-zone.dragover {
-            border-color: var(--accent-blue);
-            background: rgba(88, 166, 255, 0.05);
+            border-color: var(--gold-primary);
+            background: rgba(212, 175, 55, 0.05);
+            box-shadow: inset 0 0 30px rgba(212, 175, 55, 0.05);
         }
 
         .upload-zone input {
@@ -191,7 +406,7 @@
         .upload-icon {
             font-size: 2.5rem;
             margin-bottom: 0.75rem;
-            opacity: 0.7;
+            filter: grayscale(0.3);
         }
 
         .upload-text {
@@ -200,20 +415,24 @@
         }
 
         .upload-text strong {
-            color: var(--accent-blue);
+            color: var(--gold-primary);
         }
 
         .file-name {
-            background: var(--bg-tertiary);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--border-color);
+            padding: 0.625rem 1rem;
+            border-radius: 10px;
             font-size: 0.875rem;
             margin-top: 0.75rem;
             display: none;
+            color: var(--gold-light);
         }
 
         .file-name.visible {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         /* Buttons */
@@ -222,24 +441,46 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
+            padding: 0.875rem 1.75rem;
             border: none;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            font-weight: 500;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            color: white;
+            background: linear-gradient(145deg, var(--gold-light), var(--gold-dark));
+            color: var(--bg-primary);
+            box-shadow:
+                0 4px 15px var(--gold-glow),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 100%);
+            pointer-events: none;
         }
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(88, 166, 255, 0.3);
+            box-shadow:
+                0 6px 25px var(--gold-glow),
+                inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         .btn-secondary {
@@ -249,12 +490,14 @@
         }
 
         .btn-secondary:hover:not(:disabled) {
-            background: var(--border-color);
+            background: var(--bg-glass);
+            border-color: var(--gold-primary);
         }
 
         .btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
+            transform: none !important;
         }
 
         .btn-group {
@@ -272,10 +515,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem;
-            background: var(--bg-tertiary);
-            border-radius: 8px;
+            padding: 0.875rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
             margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
         .toggle-label {
@@ -289,17 +535,19 @@
         }
 
         .toggle {
-            width: 48px;
-            height: 26px;
-            background: var(--border-color);
-            border-radius: 13px;
+            width: 52px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
             cursor: pointer;
             position: relative;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .toggle.active {
-            background: var(--accent-green);
+            background: linear-gradient(145deg, var(--gold-light), var(--gold-dark));
+            border-color: var(--gold-dark);
         }
 
         .toggle::after {
@@ -312,15 +560,59 @@
             top: 2px;
             left: 2px;
             transition: transform 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         .toggle.active::after {
-            transform: translateX(22px);
+            transform: translateX(24px);
         }
 
-        /* Log Console */
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 1rem;
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-container.visible {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-dark));
+            background-size: 200% 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Console Section */
         .console-section {
-            margin-top: 2rem;
+            margin-top: 2.5rem;
         }
 
         .console-header {
@@ -333,22 +625,23 @@
         .console-header h2 {
             font-size: 1.125rem;
             font-weight: 600;
+            color: var(--gold-light);
         }
 
         .console {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            height: 300px;
+            border-radius: 16px;
+            height: 280px;
             overflow-y: auto;
             padding: 1rem;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
-            font-size: 0.813rem;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8125rem;
         }
 
         .log-entry {
             padding: 0.375rem 0;
-            border-bottom: 1px solid var(--bg-tertiary);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
             display: flex;
             gap: 0.75rem;
         }
@@ -367,52 +660,20 @@
         }
 
         .log-entry.info .log-message { color: var(--text-primary); }
-        .log-entry.success .log-message { color: var(--accent-green); }
-        .log-entry.warning .log-message { color: var(--accent-yellow); }
-        .log-entry.error .log-message { color: var(--accent-red); }
+        .log-entry.success .log-message { color: var(--success); }
+        .log-entry.warning .log-message { color: var(--warning); }
+        .log-entry.error .log-message { color: var(--error); }
 
-        /* Progress Bar */
-        .progress-container {
-            margin-top: 1rem;
-            display: none;
-        }
-
-        .progress-container.visible {
-            display: block;
-        }
-
-        .progress-bar {
-            height: 6px;
-            background: var(--bg-tertiary);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.5rem;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        /* Files List */
+        /* Files Section */
         .files-section {
             margin-top: 2rem;
         }
 
         .files-list {
             background: var(--bg-card);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
         }
 
@@ -421,13 +682,14 @@
             align-items: center;
             justify-content: space-between;
             padding: 1rem 1.5rem;
-            background: var(--bg-secondary);
+            background: var(--bg-glass);
             border-bottom: 1px solid var(--border-color);
         }
 
         .files-header h3 {
             font-size: 1rem;
             font-weight: 500;
+            color: var(--gold-light);
         }
 
         .file-item {
@@ -435,7 +697,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 0.875rem 1.5rem;
-            border-bottom: 1px solid var(--bg-tertiary);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
             transition: background 0.2s ease;
         }
 
@@ -444,7 +706,7 @@
         }
 
         .file-item:hover {
-            background: var(--bg-tertiary);
+            background: var(--bg-glass);
         }
 
         .file-info {
@@ -467,16 +729,11 @@
             margin-left: 0.5rem;
         }
 
-        .file-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
         .file-btn {
-            padding: 0.375rem 0.75rem;
+            padding: 0.375rem 0.875rem;
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 8px;
             color: var(--text-secondary);
             font-size: 0.75rem;
             cursor: pointer;
@@ -484,8 +741,9 @@
         }
 
         .file-btn:hover {
-            background: var(--border-color);
-            color: var(--text-primary);
+            background: var(--bg-glass);
+            border-color: var(--gold-primary);
+            color: var(--gold-light);
         }
 
         /* Responsive */
@@ -499,23 +757,22 @@
                 align-items: flex-start;
             }
 
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
             .btn-group {
                 flex-direction: column;
             }
-        }
 
-        /* Animations */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+            .card {
+                padding: 1.25rem;
+            }
 
-        .loading {
-            animation: pulse 1.5s ease-in-out infinite;
+            .step-number {
+                width: 48px;
+                height: 48px;
+            }
+
+            .step-number span {
+                font-size: 1.25rem;
+            }
         }
 
         /* Scrollbar */
@@ -534,7 +791,28 @@
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
+            background: var(--gold-dark);
+        }
+
+        /* Animations */
+        .card {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .workflow-step:nth-child(1) .card { animation-delay: 0.1s; }
+        .workflow-step:nth-child(2) .card { animation-delay: 0.2s; }
+        .workflow-step:nth-child(3) .card { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -544,7 +822,10 @@
             <div class="header-content">
                 <div class="logo">
                     <div class="logo-icon">C</div>
-                    <h1>Crewhu Integration</h1>
+                    <div>
+                        <h1>Crewhu Integration</h1>
+                        <div class="logo-subtitle">ConnectWise Manage Automation</div>
+                    </div>
                 </div>
                 <div class="status-badge" id="apiStatus">
                     <span class="status-dot" id="statusDot"></span>
@@ -555,121 +836,170 @@
     </header>
 
     <main class="container">
-        <div class="grid">
-            <!-- Parse Emails Card -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon blue">&#128231;</div>
-                    <h2>Parse Crewhu Emails</h2>
-                </div>
-                <p>Upload JSON export of Crewhu notification emails to extract survey data.</p>
+        <!-- Intro Section -->
+        <div class="intro-section">
+            <h2>Welcome to Crewhu Integration</h2>
+            <p>Follow the three simple steps below to sync your Crewhu survey data with ConnectWise Manage. Each step builds on the previous one, so complete them in order.</p>
+        </div>
 
-                <div class="upload-zone" id="emailUploadZone">
-                    <input type="file" id="emailFile" accept=".json">
-                    <div class="upload-icon">&#128193;</div>
-                    <div class="upload-text">
-                        <strong>Click to upload</strong> or drag and drop<br>
-                        JSON file (max 16MB)
+        <!-- Workflow Steps -->
+        <div class="workflow">
+            <!-- Step 1: Parse Emails -->
+            <div class="workflow-step">
+                <div class="card" id="step1Card">
+                    <div class="card-header">
+                        <div class="step-number"><span>1</span></div>
+                        <div class="step-info">
+                            <div class="step-label">First Step</div>
+                            <h2>Parse Crewhu Emails</h2>
+                        </div>
                     </div>
-                </div>
-                <div class="file-name" id="emailFileName"></div>
+                    <p class="card-description">Upload your exported Crewhu notification emails (JSON format) to extract survey data including ratings, feedback, and ticket numbers.</p>
 
-                <div class="toggle-container">
-                    <div class="toggle-label">
-                        Dry Run Mode
-                        <small>Preview without saving changes</small>
+                    <div class="card-instructions">
+                        <h4>&#128161; How to get your email export:</h4>
+                        <ul>
+                            <li>Run the PowerShell script <code>emailParse.ps1</code> on a machine with Outlook</li>
+                            <li>Or export emails manually as JSON from your email client</li>
+                            <li>The file should contain Crewhu notification emails</li>
+                        </ul>
                     </div>
-                    <div class="toggle active" id="emailDryRun" data-active="true"></div>
-                </div>
 
-                <button class="btn btn-primary" id="parseEmailsBtn" disabled>
-                    <span>&#9658;</span> Parse Emails
-                </button>
-
-                <div class="progress-container" id="emailProgress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="emailProgressFill"></div>
+                    <div class="upload-zone" id="emailUploadZone">
+                        <input type="file" id="emailFile" accept=".json">
+                        <div class="upload-icon">&#128233;</div>
+                        <div class="upload-text">
+                            <strong>Click to upload</strong> or drag and drop<br>
+                            JSON file containing email export
+                        </div>
                     </div>
-                    <div class="progress-text">
-                        <span id="emailProgressText">Processing...</span>
-                        <span id="emailProgressPercent">0%</span>
+                    <div class="file-name" id="emailFileName"></div>
+
+                    <div class="toggle-container">
+                        <div class="toggle-label">
+                            Dry Run Mode
+                            <small>Preview results without saving to file</small>
+                        </div>
+                        <div class="toggle active" id="emailDryRun" data-active="true"></div>
+                    </div>
+
+                    <button class="btn btn-primary" id="parseEmailsBtn" disabled>
+                        <span>&#9654;</span> Parse Emails
+                    </button>
+
+                    <div class="progress-container" id="emailProgress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="emailProgressFill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="emailProgressText">Processing...</span>
+                            <span id="emailProgressPercent">0%</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Post Ratings Card -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon green">&#11088;</div>
-                    <h2>Update Ticket Ratings</h2>
-                </div>
-                <p>Upload CSV with ticket ratings to update ConnectWise custom fields.</p>
-
-                <div class="upload-zone" id="ratingsUploadZone">
-                    <input type="file" id="ratingsFile" accept=".csv">
-                    <div class="upload-icon">&#128193;</div>
-                    <div class="upload-text">
-                        <strong>Click to upload</strong> or drag and drop<br>
-                        CSV file (max 16MB)
+            <!-- Step 2: Update Ratings -->
+            <div class="workflow-step">
+                <div class="card" id="step2Card">
+                    <div class="card-header">
+                        <div class="step-number"><span>2</span></div>
+                        <div class="step-info">
+                            <div class="step-label">Second Step</div>
+                            <h2>Update Ticket Ratings</h2>
+                        </div>
                     </div>
-                </div>
-                <div class="file-name" id="ratingsFileName"></div>
+                    <p class="card-description">Upload your Crewhu ratings CSV export to update the "Latest Crewhu Rating" custom field on ConnectWise tickets.</p>
 
-                <div class="toggle-container">
-                    <div class="toggle-label">
-                        Dry Run Mode
-                        <small>Preview without making API calls</small>
+                    <div class="card-instructions">
+                        <h4>&#128161; What you need:</h4>
+                        <ul>
+                            <li>Export your survey history from Crewhu as CSV</li>
+                            <li>CSV must have "Ticket#" and "Rating" columns</li>
+                            <li>Ratings will be mapped: AWESOME/POSITIVE &#8594; "Positive", NEGATIVE &#8594; "Negative"</li>
+                        </ul>
                     </div>
-                    <div class="toggle active" id="ratingsDryRun" data-active="true"></div>
-                </div>
 
-                <button class="btn btn-primary" id="postRatingsBtn" disabled>
-                    <span>&#9658;</span> Update Ratings
-                </button>
-
-                <div class="progress-container" id="ratingsProgress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="ratingsProgressFill"></div>
+                    <div class="upload-zone" id="ratingsUploadZone">
+                        <input type="file" id="ratingsFile" accept=".csv">
+                        <div class="upload-icon">&#128200;</div>
+                        <div class="upload-text">
+                            <strong>Click to upload</strong> or drag and drop<br>
+                            CSV file with ratings data
+                        </div>
                     </div>
-                    <div class="progress-text">
-                        <span id="ratingsProgressText">Processing...</span>
-                        <span id="ratingsProgressPercent">0%</span>
+                    <div class="file-name" id="ratingsFileName"></div>
+
+                    <div class="toggle-container">
+                        <div class="toggle-label">
+                            Dry Run Mode
+                            <small>Preview changes without updating ConnectWise</small>
+                        </div>
+                        <div class="toggle active" id="ratingsDryRun" data-active="true"></div>
+                    </div>
+
+                    <button class="btn btn-primary" id="postRatingsBtn" disabled>
+                        <span>&#9654;</span> Update Ratings
+                    </button>
+
+                    <div class="progress-container" id="ratingsProgress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ratingsProgressFill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="ratingsProgressText">Processing...</span>
+                            <span id="ratingsProgressPercent">0%</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Post Notes Card -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon purple">&#128221;</div>
-                    <h2>Post Internal Notes</h2>
-                </div>
-                <p>Post customer feedback as internal notes on ConnectWise tickets.</p>
-
-                <div class="toggle-container">
-                    <div class="toggle-label">
-                        Dry Run Mode
-                        <small>Preview without posting notes</small>
+            <!-- Step 3: Post Notes -->
+            <div class="workflow-step">
+                <div class="card" id="step3Card">
+                    <div class="card-header">
+                        <div class="step-number"><span>3</span></div>
+                        <div class="step-info">
+                            <div class="step-label">Final Step</div>
+                            <h2>Post Internal Notes</h2>
+                        </div>
                     </div>
-                    <div class="toggle active" id="notesDryRun" data-active="true"></div>
-                </div>
+                    <p class="card-description">Add customer feedback from Step 1 as internal analysis notes on the corresponding ConnectWise tickets.</p>
 
-                <div class="btn-group">
-                    <button class="btn btn-secondary" id="selectNotesFile">
-                        Select JSON File
-                    </button>
-                    <button class="btn btn-primary" id="postNotesBtn">
-                        <span>&#9658;</span> Post Notes
-                    </button>
-                </div>
-
-                <div class="progress-container" id="notesProgress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="notesProgressFill"></div>
+                    <div class="card-instructions">
+                        <h4>&#128161; Before you begin:</h4>
+                        <ul>
+                            <li>Complete Step 1 first to generate the parsed survey data</li>
+                            <li>Select which JSON file to use from your uploaded files below</li>
+                            <li>Notes will appear in the "Internal Analysis" tab on tickets</li>
+                        </ul>
                     </div>
-                    <div class="progress-text">
-                        <span id="notesProgressText">Processing...</span>
-                        <span id="notesProgressPercent">0%</span>
+
+                    <div class="toggle-container">
+                        <div class="toggle-label">
+                            Dry Run Mode
+                            <small>Preview notes without posting to ConnectWise</small>
+                        </div>
+                        <div class="toggle active" id="notesDryRun" data-active="true"></div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" id="selectNotesFile">
+                            &#128194; Select JSON File
+                        </button>
+                        <button class="btn btn-primary" id="postNotesBtn">
+                            <span>&#9654;</span> Post Notes
+                        </button>
+                    </div>
+
+                    <div class="progress-container" id="notesProgress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="notesProgressFill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="notesProgressText">Processing...</span>
+                            <span id="notesProgressPercent">0%</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -678,15 +1008,13 @@
         <!-- Console Section -->
         <div class="console-section">
             <div class="console-header">
-                <h2>Activity Log</h2>
-                <button class="btn btn-secondary" id="clearLog" style="width: auto; padding: 0.5rem 1rem;">
-                    Clear Log
-                </button>
+                <h2>&#128196; Activity Log</h2>
+                <button class="file-btn" id="clearLog">Clear Log</button>
             </div>
             <div class="console" id="console">
                 <div class="log-entry info">
                     <span class="log-time">--:--:--</span>
-                    <span class="log-message">Ready. Upload files to begin processing.</span>
+                    <span class="log-message">Welcome! Start with Step 1 by uploading your Crewhu email export.</span>
                 </div>
             </div>
         </div>
@@ -695,12 +1023,12 @@
         <div class="files-section">
             <div class="files-list">
                 <div class="files-header">
-                    <h3>Uploaded Files</h3>
+                    <h3>&#128193; Uploaded Files</h3>
                     <button class="file-btn" id="refreshFiles">&#8635; Refresh</button>
                 </div>
                 <div id="filesList">
                     <div class="file-item" style="color: var(--text-muted); justify-content: center;">
-                        No files uploaded yet
+                        No files uploaded yet. Start by uploading files in Step 1 or 2.
                     </div>
                 </div>
             </div>
@@ -747,6 +1075,10 @@
             document.getElementById(`${prefix}Progress`).classList.remove('visible');
         }
 
+        function markStepComplete(stepNum) {
+            document.getElementById(`step${stepNum}Card`).classList.add('completed');
+        }
+
         // API Status Check
         async function checkApiStatus() {
             try {
@@ -763,11 +1095,12 @@
                     statusDot.classList.remove('connected');
                     statusText.textContent = 'Missing Credentials';
                     log(`Missing credentials: ${data.missing.join(', ')}`, 'error');
+                    log('Please configure environment variables on your server', 'warning');
                 }
             } catch (error) {
                 statusDot.classList.add('error');
                 statusText.textContent = 'API Error';
-                log('Failed to check API status', 'error');
+                log('Failed to check API status - server may be starting up', 'warning');
             }
         }
 
@@ -807,7 +1140,7 @@
             const file = input.files[0];
             if (!file) return;
 
-            fileNameEl.textContent = file.name;
+            fileNameEl.innerHTML = `&#128196; ${file.name}`;
             fileNameEl.classList.add('visible');
 
             // Upload file
@@ -868,7 +1201,7 @@
             };
 
             eventSource.onerror = () => {
-                log('Connection lost. Reconnecting...', 'warning');
+                log('Connection interrupted. Results may still process.', 'warning');
             };
         }
 
@@ -879,7 +1212,7 @@
             const dryRun = document.getElementById('emailDryRun').dataset.active === 'true';
 
             btn.disabled = true;
-            log(`Starting email parsing (Dry Run: ${dryRun})...`, 'info');
+            log(`Starting email parsing${dryRun ? ' (Dry Run)' : ''}...`, 'info');
 
             connectSSE(
                 (data) => {
@@ -892,7 +1225,11 @@
                     btn.disabled = false;
                     hideProgress('email');
                     if (result.success) {
-                        log(`Parsing complete! Extracted ${result.surveys_extracted} surveys`, 'success');
+                        log(`Step 1 complete! Extracted ${result.surveys_extracted} surveys from ${result.total_emails} emails`, 'success');
+                        if (!dryRun) {
+                            markStepComplete(1);
+                            log('Output saved to crewhu_surveys_clean.json - ready for Step 3', 'success');
+                        }
                         refreshFiles();
                     }
                 }
@@ -915,7 +1252,7 @@
             const dryRun = document.getElementById('ratingsDryRun').dataset.active === 'true';
 
             btn.disabled = true;
-            log(`Starting ratings update (Dry Run: ${dryRun})...`, 'info');
+            log(`Starting ratings update${dryRun ? ' (Dry Run)' : ''}...`, 'info');
 
             connectSSE(
                 (data) => {
@@ -928,7 +1265,10 @@
                     btn.disabled = false;
                     hideProgress('ratings');
                     if (result.success) {
-                        log(`Ratings update complete! Updated: ${result.updated}, Errors: ${result.errors}`, 'success');
+                        log(`Step 2 complete! Updated: ${result.updated}, Skipped: ${result.skipped}, Errors: ${result.errors}`, 'success');
+                        if (!dryRun) {
+                            markStepComplete(2);
+                        }
                     }
                 }
             );
@@ -947,7 +1287,7 @@
         async function postNotes() {
             const dryRun = document.getElementById('notesDryRun').dataset.active === 'true';
 
-            log(`Starting notes posting (Dry Run: ${dryRun})...`, 'info');
+            log(`Starting notes posting using "${selectedNotesFile}"${dryRun ? ' (Dry Run)' : ''}...`, 'info');
 
             connectSSE(
                 (data) => {
@@ -959,7 +1299,11 @@
                 (result) => {
                     hideProgress('notes');
                     if (result.success) {
-                        log(`Notes posting complete! Posted: ${result.posted}, Errors: ${result.errors}`, 'success');
+                        log(`Step 3 complete! Posted: ${result.posted}, Errors: ${result.errors}`, 'success');
+                        if (!dryRun) {
+                            markStepComplete(3);
+                            log('All steps completed! Your ConnectWise tickets have been updated.', 'success');
+                        }
                     }
                 }
             );
@@ -985,7 +1329,7 @@
                 if (files.length === 0) {
                     container.innerHTML = `
                         <div class="file-item" style="color: var(--text-muted); justify-content: center;">
-                            No files uploaded yet
+                            No files uploaded yet. Start by uploading files in Step 1 or 2.
                         </div>
                     `;
                     return;
@@ -994,6 +1338,7 @@
                 container.innerHTML = files.map(file => {
                     const icon = file.name.endsWith('.json') ? '&#128196;' : '&#128200;';
                     const size = (file.size / 1024).toFixed(1) + ' KB';
+                    const isSelected = file.name === selectedNotesFile;
                     return `
                         <div class="file-item">
                             <div class="file-info">
@@ -1001,22 +1346,24 @@
                                 <div class="file-details">
                                     ${file.name}
                                     <span>${size}</span>
+                                    ${isSelected ? '<span style="color: var(--gold-primary);">(Selected for Step 3)</span>' : ''}
                                 </div>
                             </div>
                             <div class="file-actions">
-                                <button class="file-btn" onclick="selectForNotes('${file.name}')">Use for Notes</button>
+                                ${file.name.endsWith('.json') ? `<button class="file-btn" onclick="selectForNotes('${file.name}')">Use for Step 3</button>` : ''}
                             </div>
                         </div>
                     `;
                 }).join('');
             } catch (error) {
-                log('Failed to refresh file list', 'error');
+                log('Failed to refresh file list', 'warning');
             }
         }
 
         function selectForNotes(filename) {
             selectedNotesFile = filename;
-            log(`Selected "${filename}" for notes posting`, 'info');
+            log(`Selected "${filename}" for Step 3 (Post Notes)`, 'info');
+            refreshFiles();
         }
 
         // Clear Log
@@ -1048,7 +1395,8 @@
             document.getElementById('postRatingsBtn').addEventListener('click', postRatings);
             document.getElementById('postNotesBtn').addEventListener('click', postNotes);
             document.getElementById('selectNotesFile').addEventListener('click', () => {
-                log('Select a JSON file from the list below, or upload one first', 'info');
+                log('Select a JSON file from the "Uploaded Files" list below', 'info');
+                document.querySelector('.files-section').scrollIntoView({ behavior: 'smooth' });
             });
             document.getElementById('refreshFiles').addEventListener('click', refreshFiles);
         });
